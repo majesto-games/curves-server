@@ -1,0 +1,17 @@
+{
+  "name": "curves-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --nouse-idle-notification server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "lokijs": "^1.4.1",
+    "ws": "^1.0.0"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^1.2.1",
+    "utf-8-validate": "^1.2.1"
+  }
+}
