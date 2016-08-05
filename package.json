@@ -3,15 +3,25 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node --nouse-idle-notification server.js"
+    "start": "node --nouse-idle-notification server.js",
+    "dev": "ts-node server.ts"
   },
   "license": "MIT",
   "dependencies": {
+    "koa": "^2.0.0",
+    "koa-bodyparser": "^2.2.0",
+    "koa-router": "^7.0.1",
     "lokijs": "^1.4.1",
     "ws": "^1.0.0"
   },
   "optionalDependencies": {
     "bufferutil": "^1.2.1",
     "utf-8-validate": "^1.2.1"
+  },
+  "devDependencies": {
+    "ts-node": "^1.2.2",
+    "tslint": "^3.14.0",
+    "typescript": "^2.0.0",
+    "typings": "^1.3.2"
   }
 }

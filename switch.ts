@@ -1,7 +1,18 @@
-const EventEmitter = require("events").EventEmitter
+import * as events from "events"
 const Loki = require("lokijs")
 
-function jsonparse(input) {
+interface Board extends events.EventEmitter {
+  rooms: any,
+  room: any,
+  id: any,
+  process: any,
+  leave: any,
+  connect: any,
+  destroy: any,
+  reset: any,
+}
+
+function jsonparse(input: any) {
   try {
     return JSON.parse(input)
   } catch (e) {
@@ -9,8 +20,8 @@ function jsonparse(input) {
   }
 }
 
-module.exports = function () {
-  const board = new EventEmitter()
+export  function createBoard(): Board {
+  const board = new events.EventEmitter() as Board
   const db = new Loki()
   const rooms = board.rooms = db.addCollection("rooms", {
     unique: ["name"],
@@ -18,9 +29,9 @@ module.exports = function () {
   })
 
   function connect() {
-    const peer = new EventEmitter()
+    const peer = new events.EventEmitter() as Board
 
-    function process(data) {
+    function process(data: any) {
       // emit the data for the board to process
       board.emit("data", data, peer && peer.id, peer)
 
@@ -33,7 +44,7 @@ module.exports = function () {
         switch (command) {
           case "to": {
             const idPart = parts[0]
-            const target = peer.room && peer.room.members.find(member => member.id === idPart)
+            const target = peer.room && peer.room.members.find((member: any) => member.id === idPart)
 
             if (target) {
               target.emit("data", data)
@@ -47,7 +58,7 @@ module.exports = function () {
             board.emit.apply(board, [command, data, peer].concat(parts))
 
             if (peer.room) {
-              peer.room.members.filter(p => p !== peer).forEach(function (member) {
+              peer.room.members.filter((p: any) => p !== peer).forEach(function (member: any) {
                 member.emit("data", data)
               })
             }
@@ -66,7 +77,7 @@ module.exports = function () {
     return peer
   }
 
-  function createRoom(name) {
+  function createRoom(name: any) {
     // create a simple room object
     rooms.insert({
       name,
@@ -82,12 +93,12 @@ module.exports = function () {
     rooms.clear()
   }
 
-  function getOrCreateRoom(name) {
+  function getOrCreateRoom(name: any) {
     return rooms.by("name", name) || createRoom(name)
   }
 
   // handle announce messages
-  board.on("announce", function (payload, peer, sender, data) {
+  board.on("announce", function (payload: any, peer: any, sender: any, data: any) {
     const targetRoom = data && data.room
     const room = targetRoom && getOrCreateRoom(targetRoom)
 
@@ -103,7 +114,7 @@ module.exports = function () {
 
     if (room) {
       // add the peer to the room
-      room.members = room.members.filter(member => member.id !== peer.id).concat([peer])
+      room.members = room.members.filter((member: any) => member.id !== peer.id).concat([peer])
 
       room.memberCount = room.members.length
 
@@ -115,10 +126,10 @@ module.exports = function () {
     }
   })
 
-  board.on("leave", function (peer) {
+  board.on("leave", function (peer: any) {
     if (peer.room) {
       // remove the peer from the room
-      peer.room.members = peer.room.members.filter(p => p !== peer)
+      peer.room.members = peer.room.members.filter((p: any) => p !== peer)
 
       // if we have no more members in the room, then destroy the room
       if (peer.room.members.length === 0) {
