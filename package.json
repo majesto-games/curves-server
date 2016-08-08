@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node --nouse-idle-notification server.js",
-    "dev": "ts-node server.ts"
+    "dev": "ts-node server.ts",
+    "postinstall": "typings install"
   },
   "license": "MIT",
   "dependencies": {
