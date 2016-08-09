@@ -3,6 +3,7 @@
     "koa": "registry:dt/koa#2.0.0+20160724024233",
     "koa-bodyparser": "registry:dt/koa-bodyparser#3.0.0+20160414124440",
     "koa-router": "registry:dt/koa-router#7.0.0+20160314083221",
+    "lokijs": "registry:dt/lokijs#0.0.0+20160316155526",
     "node": "registry:dt/node#6.0.0+20160802155038",
     "ws": "registry:dt/ws#0.0.0+20160724122153"
   }

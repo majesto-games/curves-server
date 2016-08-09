@@ -1,18 +1,29 @@
 import * as events from "events"
-const Loki = require("lokijs")
+import * as Loki from "lokijs"
 
 interface Board extends events.EventEmitter {
-  rooms: any,
-  room: any,
-  id: any,
-  process: any,
-  leave: any,
-  connect: any,
-  destroy: any,
-  reset: any,
+  rooms: LokiCollection<Room>,
+  connect: () => Peer,
+  destroy: () => void,
+  reset: () => void,
 }
 
-function jsonparse(input: any) {
+type IdType = string | number
+
+interface Peer extends events.EventEmitter {
+  id: IdType,
+  room: Room | null,
+  leave: () => boolean
+  process: (data: string) => void,
+}
+
+interface Room {
+  name: string,
+  memberCount: number,
+  members: Peer[],
+}
+
+function jsonparse(input: string) {
   try {
     return JSON.parse(input)
   } catch (e) {
@@ -22,16 +33,16 @@ function jsonparse(input: any) {
 
 export  function createBoard(): Board {
   const board = new events.EventEmitter() as Board
-  const db = new Loki()
-  const rooms = board.rooms = db.addCollection("rooms", {
+  const db = new Loki("")
+  const rooms = board.rooms = db.addCollection<Room>("rooms", {
     unique: ["name"],
     indices: ["memberCount"],
   })
 
   function connect() {
-    const peer = new events.EventEmitter() as Board
+    const peer = new events.EventEmitter() as Peer
 
-    function process(data: any) {
+    function process(data: string) {
       // emit the data for the board to process
       board.emit("data", data, peer && peer.id, peer)
 
@@ -43,7 +54,7 @@ export  function createBoard(): Board {
 
         switch (command) {
           case "to": {
-            const idPart = parts[0]
+            const idPart: IdType = parts[0]
             const target = peer.room && peer.room.members.find((member: any) => member.id === idPart)
 
             if (target) {
@@ -58,9 +69,7 @@ export  function createBoard(): Board {
             board.emit.apply(board, [command, data, peer].concat(parts))
 
             if (peer.room) {
-              peer.room.members.filter((p: any) => p !== peer).forEach(function (member: any) {
-                member.emit("data", data)
-              })
+              peer.room.members.filter((p: any) => p !== peer).forEach(member => member.emit("data", data))
             }
           }
         }
@@ -69,7 +78,7 @@ export  function createBoard(): Board {
 
     // add peer functions
     peer.process = process
-    peer.leave = board.emit.bind(board, "leave", peer)
+    peer.leave = () => board.emit("leave", peer)
 
     // trigger the peer connect
     board.emit("peer:connect", peer)
@@ -77,29 +86,33 @@ export  function createBoard(): Board {
     return peer
   }
 
-  function createRoom(name: any) {
+  function getRoom(name: string): Room | null {
+    return rooms.by("name", name)
+  }
+
+  function createRoom(name: string) {
     // create a simple room object
-    rooms.insert({
+    const room = rooms.insert({
       name,
       memberCount: 0,
       members: [],
     })
 
     board.emit("room:create", name)
-    return rooms.by("name", name)
+    return room
   }
 
   function destroy() {
     rooms.clear()
   }
 
-  function getOrCreateRoom(name: any) {
-    return rooms.by("name", name) || createRoom(name)
+  function getOrCreateRoom(name: string) {
+    return getRoom(name) || createRoom(name)
   }
 
   // handle announce messages
-  board.on("announce", function (payload: any, peer: any, sender: any, data: any) {
-    const targetRoom = data && data.room
+  board.on("announce", function (payload: any, peer: Peer, sender: any, data: any) {
+    const targetRoom: string | undefined = data && data.room
     const room = targetRoom && getOrCreateRoom(targetRoom)
 
     // a peer can only be in one room at a time
@@ -109,7 +122,7 @@ export  function createBoard(): Board {
     }
 
     // tag the peer
-    peer.room = room
+    peer.room = room || null
     peer.id = data.id
 
     if (room) {
@@ -126,7 +139,7 @@ export  function createBoard(): Board {
     }
   })
 
-  board.on("leave", function (peer: any) {
+  board.on("leave", function (peer: Peer) {
     if (peer.room) {
       // remove the peer from the room
       peer.room.members = peer.room.members.filter((p: any) => p !== peer)
