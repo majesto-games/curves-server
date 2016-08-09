@@ -110,34 +110,35 @@ export  function createBoard(): Board {
     return peer
   }
 
-  function getRoom(name: string): Room | null {
-    return rooms.by("name", name)
-  }
-
-  function createRoom(name: string) {
-    // create a simple room object
-    const room = rooms.insert({
-      name,
-      memberCount: 0,
-      members: [],
-    })
-
-    board.event("room:create").emit(name)
-    return room
-  }
 
   function destroy() {
     rooms.clear()
   }
 
-  function getOrCreateRoom(name: string) {
-    return getRoom(name) || createRoom(name)
+  function getRoom(name: string): Room {
+    function getCachedRoom(): Room | null {
+      return rooms.by("name", name)
+    }
+
+    function createRoom() {
+      // create a simple room object
+      const room = rooms.insert({
+        name,
+        memberCount: 0,
+        members: [],
+      })
+
+      board.event("room:create").emit(name)
+      return room
+    }
+
+    return getCachedRoom() || createRoom()
   }
 
   // handle announce messages
   board.event("announce").on(({peer, data}: {peer: Peer, data: AnnounceData }) => {
     const targetRoom: string | undefined = data && data.room
-    const room = targetRoom && getOrCreateRoom(targetRoom)
+    const room = targetRoom && getRoom(targetRoom)
 
     // a peer can only be in one room at a time
     // trigger a leave command if the peer joins a new room
