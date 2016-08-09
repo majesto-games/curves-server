@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node --nouse-idle-notification server.js",
     "dev": "ts-node server.ts",
-    "docs": "typedoc --includeDeclarations --out docs server.ts typings/index.d.ts",
+    "docs": "typedoc --includeDeclarations --readme none --name \"Curves server\" --out docs server.ts typings/index.d.ts",
     "docsdeploy": "node docsdeploy.js",
     "postinstall": "typings install"
   },
