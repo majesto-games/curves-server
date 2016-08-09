@@ -23,7 +23,7 @@ wss.on("connection", client => {
   connections.push(client)
 
   client.on("message", peer.process)
-  peer.on("data", (data: any) => {
+  peer.event("data").on((data: any) => {
     if (client.readyState === 1) {
       client.send(data)
     }
@@ -42,18 +42,12 @@ board.reset = () => {
   })
 }
 
-function logRooms() {
-  console.log(board.rooms.chain().simplesort("memberCount", true).data())
-}
-
 function sanitizeRoom({ name, memberCount }: any) {
   return {
     name,
     memberCount,
   }
 }
-
-setInterval(logRooms, 4000)
 
 const router = new KoaRouter()
 

@@ -15,6 +15,7 @@
     "koa-bodyparser": "^2.2.0",
     "koa-router": "^7.0.1",
     "lokijs": "^1.4.1",
+    "ts-eventemitter": "^0.1.0",
     "ws": "^1.0.0"
   },
   "optionalDependencies": {
