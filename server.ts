@@ -1,6 +1,7 @@
 import * as Koa from "koa"
 import * as KoaRouter from "koa-router"
 import * as bodyParser from "koa-bodyparser"
+import * as cors from "kcors"
 import * as WebSocket from "ws"
 import * as http from "http"
 import { createBoard } from "./switch.ts"
@@ -55,6 +56,7 @@ router.get("/", async (ctx, next) => {
   ctx.body = board.rooms.chain().simplesort("memberCount", true).data().map(sanitizeRoom)
 })
 
+app.use(cors())
 app.use(router.routes()).use(router.allowedMethods())
 
 // server.on("request", function (req, res) {
