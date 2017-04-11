@@ -1,10 +1,9 @@
 import * as Koa from "koa"
 import * as KoaRouter from "koa-router"
-import * as bodyParser from "koa-bodyparser"
 import * as cors from "kcors"
 import * as WebSocket from "ws"
 import * as http from "http"
-import { createBoard } from "./switch.ts"
+import { createBoard } from "./switch"
 
 const app = new Koa()
 const port = parseInt(process.env.NODE_PORT || process.env.PORT || process.argv[2], 10) || 3000
