@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node --nouse-idle-notification server.js",
+    "start": "npm run build && node --nouse-idle-notification server.js",
+    "build": "tsc -p .",
     "dev": "ts-node server.ts",
     "docs": "typedoc --includeDeclarations --readme none --name \"Curves server\" --out docs server.ts typings/index.d.ts",
     "docsdeploy": "node docsdeploy.js",
